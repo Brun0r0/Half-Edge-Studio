@@ -1,0 +1,15 @@
+# poligonos.obj
+
+# Vértices
+v 0.0 0.0 0.0   # 1
+v 2.0 0.0 0.0   # 2
+v 2.0 2.0 0.0   # 3
+v 0.0 2.0 0.0   # 4
+v 3.0 1.0 0.0   # 5
+v 4.0 0.0 0.0   # 6
+v 4.0 2.0 0.0   # 7
+
+# Faces poligonais (quadrado, pentágono, quadrilátero irregular)
+f 1 2 3 4
+f 2 5 7 3
+f 2 6 7 5

@@ -1,0 +1,11 @@
+# hexagono.obj
+
+v 0.0 0.0 0.0
+v 1.0 0.0 0.0
+v 1.5 0.87 0.0
+v 1.0 1.74 0.0
+v 0.0 1.74 0.0
+v -0.5 0.87 0.0
+
+# Faces (triangulando o hexágono)
+f 1 2 3 4 5 6
