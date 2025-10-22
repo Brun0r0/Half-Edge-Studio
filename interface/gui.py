@@ -10,7 +10,7 @@ class App(tk.Tk):
     def __init__(self, master=None):
         super().__init__(master)
         self.title("app")
-        self.geometry("1400x800")
+        self.resizable(False, False)
 
         self.estrutura = None
 
@@ -152,6 +152,9 @@ class App(tk.Tk):
         scrollbar.config(command=self.tree.yview)
 
         self.tree.column("#0", width=400)
+
+        self.update_idletasks()
+        self.geometry(f"{self.winfo_reqwidth()}x{self.winfo_reqheight()}")
         
 
     def atualizar_listbox(self):
@@ -206,18 +209,15 @@ class App(tk.Tk):
         if self.estrutura is None:
             return
         
-        tx = float(self.entry_tx.get()) * 0.01
-        ty = float(self.entry_ty.get()) * 0.01
+        tx = float(self.entry_tx.get())
+        ty = float(self.entry_ty.get())
         sx = float(self.entry_sx.get())
         sy = float(self.entry_sy.get())
-        cis_x = float(self.entry_cisx.get()) * 0.01
-        cis_y = float(self.entry_cisy.get()) * 0.01
+        cis_x = float(self.entry_cisx.get())
+        cis_y = float(self.entry_cisy.get())
         angulo = float(self.entry_a.get())
 
         modificar_estrutura(self.estrutura, tx, ty, sx, sy, cis_x, cis_y, angulo)
-
-        if self.openGL_view.bbox_inicial is not None:
-            self.openGL_view.bbox = self.openGL_view.bbox_inicial
 
         self.openGL_view.redraw()
 

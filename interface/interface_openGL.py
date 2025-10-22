@@ -9,16 +9,11 @@ class Janela_OpenGL(OpenGLFrame):
         self.estrutura = None
         self.window_w = 800
         self.window_h = 600
-        self.bbox_inicial = None
-
-        self.pos_x = 0
-        self.pos_y = 0
-        self.escala = 0
+        self.margin = 0.3
 
     def set_estrutura(self, estrutura):
         self.estrutura = estrutura
         self.bbox = self.compute_bbox(estrutura)
-        self.bbox_inicial = self.bbox 
 
         self.after(10, self.redraw)
 
@@ -41,20 +36,17 @@ class Janela_OpenGL(OpenGLFrame):
     
     # Converte coordenadas do mundo real para coordenadas de tela
     def world_to_screen(self, x, y):
-        if self.bbox is None:
-            return (int(x), int(y))
 
-        minx, maxx, miny, maxy = self.bbox
+        minx, maxx, miny, maxy = self.compute_bbox(self.estrutura)
         # prevenir divisão por zero
         ret_x = maxx - minx if maxx - minx != 0 else 1.0
         ret_y = maxy - miny if maxy - miny != 0 else 1.0
-        # Margem para evitar que a estrutura fique junta da borda
-        margin = 0.3
+        
         sx = (x - minx) / ret_x
         sy = (y - miny) / ret_y
         # manter aspecto
-        sx = margin + sx * (1 - 2*margin)
-        sy = margin + sy * (1 - 2*margin)
+        sx = self.margin + sx * (1 - 2*self.margin)
+        sy = self.margin + sy * (1 - 2*self.margin)
         screen_x = int(sx * (self.window_w - 1))
         screen_y = int(sy * (self.window_h - 1))
         return screen_x, screen_y
@@ -120,7 +112,6 @@ class Janela_OpenGL(OpenGLFrame):
     
     # Desenha todas as arestas da estrutura
     def desenhar_tudo(self):
-
         glColor3f(1,1,1)
         glPointSize(1)
         drawn = set()
@@ -154,6 +145,17 @@ class Janela_OpenGL(OpenGLFrame):
         if self.estrutura:
             self.window_w = self.width
             self.window_h = self.height
+            self.desenharEixos()
             self.desenhar_tudo()
 
+
         glFlush()
+
+    def desenharEixos(self):
+        glColor3f(1, 0, 0)
+        if self.bbox:
+            _, y_center = self.world_to_screen(0, 0)
+            self.desenharSegmento(0, y_center, self.window_w - 1, y_center)
+            
+            x_center, _ = self.world_to_screen(0, 0)
+            self.desenharSegmento(x_center, 0, x_center, self.window_h - 1)
