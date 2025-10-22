@@ -20,7 +20,7 @@ class App(tk.Tk):
 
         # Frame da lista de objetos
         frame_widgets = tk.Frame(main_frame)
-        frame_widgets.grid(row=0, column=0, padx=10, pady=10)
+        frame_widgets.grid(row=0, column=2, padx=10, pady=10)
         
         # Sub-frame da lista (utilizo essa só para listBox e scrollBar)
         tk.Label(frame_widgets, text='Lista objetos', font=('Arial', 12, 'bold')).pack()
@@ -40,7 +40,6 @@ class App(tk.Tk):
 
         tk.Button(frame_widgets, text='Selecionar objeto/Resetar', command=self.processar_selecionado).pack(pady=10)
         
-
         frame_trans = tk.Frame(frame_widgets)
         frame_trans.pack(anchor="w", pady=10, fill="x")
 
@@ -138,7 +137,7 @@ class App(tk.Tk):
         self.openGL_view.animate = 1
 
         frame_estrutura = tk.Frame(main_frame)
-        frame_estrutura.grid(row=0, column=2, padx=10, pady=10)
+        frame_estrutura.grid(row=0, column=0, padx=10, pady=10)
 
         tk.Label(frame_estrutura, text="Visualização estrutura Half-Edge", font=('Arial', 12, 'bold')).pack(pady=10)
 
@@ -148,7 +147,7 @@ class App(tk.Tk):
         scrollbar = ttk.Scrollbar(sub_frame_estrutura)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
-        self.tree = ttk.Treeview(sub_frame_estrutura, yscrollcommand=scrollbar.set, selectmode='none', height=20)
+        self.tree = ttk.Treeview(sub_frame_estrutura, yscrollcommand=scrollbar.set, selectmode='none', height=34)
         self.tree.pack(side=tk.LEFT, fill= tk.BOTH, expand=True)
         scrollbar.config(command=self.tree.yview)
 
