@@ -123,7 +123,7 @@ The application has three main panels:
    - The model will be rendered in the OpenGL panel
 
   <div align="center">
-    <img src="./image/Screen1.png" alt="Tela principal" width="600">
+    <img src="./image/Screen1.png" alt="Tela principal" width="500">
     <p><i>Screen with figure already selected</i></p>
   </div>
 
@@ -135,12 +135,12 @@ The application has three main panels:
    - Example: Let's translate this figure
 
    <div align="center">
-    <img src="./image/Screen2.png" alt="Translate config" width="500">
+    <img src="./image/Screen2.png" alt="Translate config" width="900">
     <p><i>Translate config</i></p>
   </div>
 
   <div align="center">
-    <img src="./image/Screen3.png" alt="Translate demonstration" width="500">
+    <img src="./image/Screen3.png" alt="Translate demonstration" width="600">
     <p><i>Translate demonstration</i></p>
   </div>
 
