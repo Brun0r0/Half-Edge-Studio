@@ -95,10 +95,7 @@ The application will open a window with the graphical interface.
 
 The application has three main panels:
 
-<div align="center">
-  <img src="./images/Screen1.png" alt="Tela principal" width="600">
-  <p><i>Legenda em itálico</i></p>
-</div>
+
 
 1. **Control Panel (Right)**
    - List of loaded objects
@@ -125,10 +122,28 @@ The application has three main panels:
    - The Half-Edge structure will be displayed in the left panel
    - The model will be rendered in the OpenGL panel
 
+  <div align="center">
+    <img src="./image/Screen1.png" alt="Tela principal" width="600">
+    <p><i>Screen with figure already selected</i></p>
+  </div>
+
 3. **Apply transformations**:
    - Enter the desired values in the input fields
    - Click the "Apply" button
    - Changes will be reflected in real-time
+  
+   - Example: Let's translate this figure
+
+   <div align="center">
+    <img src="./image/Screen2.png" alt="Translate config" width="500">
+    <p><i>Translate config</i></p>
+  </div>
+
+  <div align="center">
+    <img src="./image/Screen3.png" alt="Translate demonstration" width="500">
+    <p><i>Translate demonstration</i></p>
+  </div>
+
 
 ### Transformation Parameters
 
