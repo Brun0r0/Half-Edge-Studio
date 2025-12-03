@@ -3,6 +3,7 @@
 
 from core.estruturas_base import Vertex, HalfEdge, Face
 
+# Classe para representar a estrutura half-edge e seus métodos de criação e busca
 class HalfEdgeStructure:
 
     def __init__(self):
