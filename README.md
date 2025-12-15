@@ -1,10 +1,12 @@
 # Half-Edge-Studio
 
-A desktop application for visualization and manipulation of Half-Edge data structures in computational geometry. The project implements 2D geometric operations with real-time visualization using OpenGL.
+This software was developed as part of a computer graphics course project. The initial idea was to create a basic command-line control by lines and prompts, but it evolved to simplify usage and integrate with the existing combination of Tkinter and OpenGL.
+
+What we have here is a desktop application for the visualization and manipulation of Half-Edge data structures in computational geometry. The project implements 2D geometric operations with real-time visualization using OpenGL.
 
 ## 📋 About the Project
 
-**Half-Edge-Studio** is an educational tool that demonstrates the Half-Edge data structure, a fundamental representation in computer graphics and computational geometry. The application allows you to load OBJ models, visualize them graphically, and apply geometric transformations such as translation, scaling, rotation, shearing, and reflection.
+**Half-Edge-Studio** is an educational tool designed to demonstrate the Half-Edge data structure, a fundamental representation in computer graphics and computational geometry. The application allows users to load OBJ models, visualize them graphically, and apply geometric transformations such as translation, scaling, rotation, shearing, and reflection. Additionally, users can switch between the Bresenham and Xiaolin-Wu line algorithms. A clipping algorithm (Cohen-Sutherland) was also implemented to optimize processing.
 
 ### Features
 
@@ -22,6 +24,11 @@ A desktop application for visualization and manipulation of Half-Edge data struc
   - Adjacent faces to an edge
   - Faces sharing a vertex
   - Edges sharing a vertex
+- **Lines Algorithm**:
+  - Bresenham
+  - Xiaolin-Wu
+- **Clipping Algorithms**:
+  - Cohen-Sutherland 
 
 ## 🏗️ Project Structure
 
@@ -32,11 +39,11 @@ Half-Edge-Studio/
 │   ├── estruturas_base.py      # Base classes: Vertex, HalfEdge, Face
 │   ├── half_edge_estrutura.py  # Structure construction logic
 │   ├── half_edge_funcoes.py    # Operations and topological queries
-│   └── funcoes_modificacao.py  # Geometric transformations
+│   └── modificacoes.py         # Geometric transformations
 ├── interface/
 │   ├── gui.py                  # Main graphical interface (Tkinter)
 │   ├── interface_openGL.py     # OpenGL rendering
-│   └── logica.py               # File loading logic
+│   └── logica_interface.py               # File loading logic
 └── arquivos_objetos/           # Directory for OBJ files (auto-created)
 ```
 
@@ -94,8 +101,6 @@ The application will open a window with the graphical interface.
 ### Main Interface
 
 The application has three main panels:
-
-
 
 1. **Control Panel (Right)**
    - List of loaded objects
@@ -209,7 +214,7 @@ The Half-Edge structure enables fast queries:
 
 ## 🎨 Rendering
 
-The project uses **Bresenham's Algorithm** for line rasterization, ensuring efficient rendering of graphic primitives. The visualization automatically adjusts zoom and position so the object fits on the screen.
+The project uses **Bresenham's Algorithm** and **Xiaolin-Wu Algorithm**l, both of which provide good line visualization. However, Xiaolin-Wu offers smoother lines.
 
 ## 📝 Code Structure
 
@@ -271,4 +276,4 @@ Developed by **Gabriel Castaman Brunoro**
 
 ---
 
-**Last update**: 2025
+**Last update**: 12/2025
