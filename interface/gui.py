@@ -1,29 +1,32 @@
 import tkinter as tk
-from tkinter import ttk
 import customtkinter as ctk
+from tkinter import ttk
+
 from interface import logica_interface
 from core.modificacoes import modificar_estrutura, reflex_ponto
 from interface.interface_openGL import Janela_OpenGL
 from core.half_edge_funcoes import visualizar_estrutura_half_edge
 
+# How was used a custom TK, possibilitate a previous configuration
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
 
+# Inside this class are all frame configurations to the main interface (just have one).
 class App(ctk.CTk):
     def __init__(self, master=None):
         super().__init__(master)
-        self.title("app")
-        self.resizable(False, False)
+        self.title("Half-Edge com OpenGL")
+        self.resizable(False, True)
         self.configure(fg_color=("gray90", "gray12"))
 
         self.estruturas = []
 
-        # Frame principal
+        # Main frame
         main_frame = ctk.CTkFrame(self)
         main_frame.pack(fill='both', expand=True, padx=10, pady=10)
 
-        # Frame da lista de objetos
-        frame_widgets = ctk.CTkFrame(main_frame)
+        # objects frame list
+        frame_widgets = ctk.CTkFrame(main_frame, fg_color="transparent")
         frame_widgets.grid(row=0, column=2, padx=10, pady=10)
         
         # Sub-frame da lista (utilizo essa só para listBox e scrollBar)
@@ -42,22 +45,19 @@ class App(ctk.CTk):
 
         self.atualizar_listbox()
 
-        ctk.CTkButton(frame_widgets, text='Selecionar objeto', command=self.processar_selecionado).pack(pady=10)
+        ctk.CTkButton(frame_widgets, text='Selecionar objeto', command=self.processar_selecionado).pack(pady=3)
 
-        ctk.CTkButton(frame_widgets, text='Limpar', command=self.limpar_tudo).pack(pady=10)
+        ctk.CTkButton(frame_widgets, text='Limpar', command=self.limpar_tudo).pack(pady=3)
 
-        ctk.CTkLabel(frame_widgets, text='Algoritmo', font=('Arial', 12, 'bold'))
+        ctk.CTkLabel(frame_widgets, text='Algoritmo de linha', font=('Arial', 12, 'bold')).pack(pady=(5))
 
         algoritmo_var = ctk.BooleanVar(value=True)  # True = Bresenham, False = Wu
 
-        frame_alg = ctk.CTkFrame(frame_widgets)
-        frame_alg.pack(anchor="w", padx=10)
+        ctk.CTkRadioButton(frame_widgets, text="Bresenham", variable=algoritmo_var, value=True,
+                       command=lambda: self.openGL_view.set_algoritmo(algoritmo_var.get())).pack(pady=3, anchor="w", padx=10)
 
-        ctk.CTkRadioButton(frame_alg, text="Bresenham", variable=algoritmo_var, value=True,
-                       command=lambda: self.openGL_view.set_algoritmo(algoritmo_var.get())).pack(anchor="w")
-
-        ctk.CTkRadioButton(frame_alg, text="Xiaolin Wu", variable=algoritmo_var, value=False,
-                       command=lambda: self.openGL_view.set_algoritmo(algoritmo_var.get())).pack(anchor="w")
+        ctk.CTkRadioButton(frame_widgets, text="Xiaolin Wu", variable=algoritmo_var, value=False,
+                       command=lambda: self.openGL_view.set_algoritmo(algoritmo_var.get())).pack(pady=3, anchor="w", padx=10)
 
         frame_trans = ctk.CTkFrame(frame_widgets)
         frame_trans.pack(anchor="w", pady=10, fill="x")
@@ -68,12 +68,12 @@ class App(ctk.CTk):
         sub_trans.grid(row=1, column=0, padx=20, sticky="w")
 
         ctk.CTkLabel(sub_trans, text="X:").grid(row=0, column=0, sticky="e", padx=5)
-        self.CTkEntry_tx = ctk.CTkEntry(sub_trans, width=8)
+        self.CTkEntry_tx = ctk.CTkEntry(sub_trans, width=100)
         self.CTkEntry_tx.insert(0, "0")
         self.CTkEntry_tx.grid(row=0, column=1, sticky="w")
 
         ctk.CTkLabel(sub_trans, text="Y:").grid(row=1, column=0, sticky="e", padx=5)
-        self.CTkEntry_ty = ctk.CTkEntry(sub_trans, width=8)
+        self.CTkEntry_ty = ctk.CTkEntry(sub_trans, width=100)
         self.CTkEntry_ty.insert(0, "0")
         self.CTkEntry_ty.grid(row=1, column=1, sticky="w")
 
@@ -86,12 +86,12 @@ class App(ctk.CTk):
         sub_esc.grid(row=1, column=0, padx=20, sticky="w")
 
         ctk.CTkLabel(sub_esc, text="X:").grid(row=0, column=0, sticky="e", padx=5)
-        self.CTkEntry_sx = ctk.CTkEntry(sub_esc, width=8)
+        self.CTkEntry_sx = ctk.CTkEntry(sub_esc, width=100)
         self.CTkEntry_sx.insert(0, "0")
         self.CTkEntry_sx.grid(row=0, column=1, sticky="w")
 
         ctk.CTkLabel(sub_esc, text="Y:").grid(row=1, column=0, sticky="e", padx=5)
-        self.CTkEntry_sy = ctk.CTkEntry(sub_esc, width=8)
+        self.CTkEntry_sy = ctk.CTkEntry(sub_esc, width=100)
         self.CTkEntry_sy.insert(0, "0")
         self.CTkEntry_sy.grid(row=1, column=1, sticky="w")
 
@@ -118,12 +118,12 @@ class App(ctk.CTk):
         sub_cis.grid(row=1, column=0, padx=20, sticky="w")
 
         ctk.CTkLabel(sub_cis, text="X:").grid(row=0, column=0, sticky="e", padx=5)
-        self.CTkEntry_cisx = ctk.CTkEntry(sub_cis, width=8)
+        self.CTkEntry_cisx = ctk.CTkEntry(sub_cis, width=100)
         self.CTkEntry_cisx.insert(0, "0")
         self.CTkEntry_cisx.grid(row=0, column=1, sticky="w")
 
         ctk.CTkLabel(sub_cis, text="Y:").grid(row=1, column=0, sticky="e", padx=5)
-        self.CTkEntry_cisy = ctk.CTkEntry(sub_cis, width=8)
+        self.CTkEntry_cisy = ctk.CTkEntry(sub_cis, width=100)
         self.CTkEntry_cisy.insert(0, "0")
         self.CTkEntry_cisy.grid(row=1, column=1, sticky="w")
 
@@ -136,14 +136,14 @@ class App(ctk.CTk):
         sub_rot.grid(row=1, column=0, padx=20, sticky="w")
 
         ctk.CTkLabel(sub_rot, text="Ângulo:").grid(row=0, column=0, sticky="e", padx=5)
-        self.CTkEntry_a = ctk.CTkEntry(sub_rot, width=8)
+        self.CTkEntry_a = ctk.CTkEntry(sub_rot, width=100)
         self.CTkEntry_a.insert(0, "0")
         self.CTkEntry_a.grid(row=0, column=1, sticky="w")
 
-        frame_aplicar = ctk.CTkFrame(frame_widgets)
-        frame_aplicar.pack(anchor="w", pady=10, fill="x")
+        frame_final_buttons = ctk.CTkFrame(frame_widgets)
+        frame_final_buttons.pack(anchor="w", pady=10, fill="x")
 
-        self.CTkButton_aplicar = ctk.CTkButton(frame_aplicar, text='Aplicar', font=('Arial', 14, 'bold'), command=self.aplicar_mods)
+        self.CTkButton_aplicar = ctk.CTkButton(frame_final_buttons, text='Aplicar', font=('Arial', 14, 'bold'), command=self.aplicar_mods)
         self.CTkButton_aplicar.pack(pady=10)
         
         frame_openGL = ctk.CTkFrame(main_frame)
@@ -153,7 +153,8 @@ class App(ctk.CTk):
 
         self.openGL_view = Janela_OpenGL(frame_openGL, width=700, height=700)
         self.openGL_view.pack(fill='both', expand=True)
-        self.openGL_view.animate = 1
+
+        ctk.CTkButton(frame_openGL, text='Reajustar visão', command=self.reset_view).pack(pady=5)
 
         frame_estrutura = ctk.CTkFrame(main_frame)
         frame_estrutura.grid(row=0, column=0, padx=10, pady=10)
@@ -212,6 +213,8 @@ class App(ctk.CTk):
 
         self.atualizar_estrutura_lista()
 
+        self.openGL_view.redraw()
+
     def reflex_x(self):
         if self.estruturas is None:
             return
@@ -220,6 +223,8 @@ class App(ctk.CTk):
 
         self.atualizar_estrutura_lista()
 
+        self.openGL_view.redraw()
+
     def reflex_y(self):
         if self.estruturas is None:
             return
@@ -227,6 +232,8 @@ class App(ctk.CTk):
         reflex_ponto(self.estruturas, 'y')
 
         self.atualizar_estrutura_lista()
+
+        self.openGL_view.redraw()
 
     def aplicar_mods(self, valor = None):
         if self.estruturas is None:
@@ -256,6 +263,8 @@ class App(ctk.CTk):
         self.tree.delete(*self.tree.get_children())
 
         self.resetar_configs()
+
+        self.openGL_view.redraw()
     
     def resetar_configs(self):
 
@@ -279,3 +288,8 @@ class App(ctk.CTk):
 
         self.CTkEntry_a.delete(0, ctk.END)
         self.CTkEntry_a.insert(0, "0")
+
+    def reset_view(self):
+        self.openGL_view.bbox = self.openGL_view.compute_bbox()
+
+        self.openGL_view.redraw()

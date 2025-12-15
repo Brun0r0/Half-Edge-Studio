@@ -1,6 +1,7 @@
 from pyopengltk import OpenGLFrame
 from OpenGL.GL import *
 from OpenGL.GLU import * 
+import math
 
 class Janela_OpenGL(OpenGLFrame):
     def __init__(self, master=None, **kwargs):
@@ -12,12 +13,11 @@ class Janela_OpenGL(OpenGLFrame):
         self.margin = 0.3
         self.algDesenho = True  # True = Bresenham, False = Wu
         self.bbox = None
+        self.viewport = None
 
     def set_estrutura(self, estrutura):
         self.estruturas.append(estrutura)
-        self.bbox = self.compute_bbox(self.estruturas)
-
-        self.after(10, self.redraw)
+        self.bbox = self.compute_bbox()
 
     def initgl(self):
         glClearColor(0.05, 0.05, 0.05, 1.0)
@@ -29,12 +29,17 @@ class Janela_OpenGL(OpenGLFrame):
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
 
+        glDisable(GL_POINT_SMOOTH)
+        
+
+        self.animate = 0
+
     def set_algoritmo(self, algoritmo):
         # True = Bresenham, False = Wu
         self.algDesenho = algoritmo 
 
-    # Função que utilizo para calcular o bounding box e fazer todas estrutura caber na tela
-    def compute_bbox(self, estrutura):
+    # Função que utilizo para calcular o bounding box e fazer todas estruturas caberem na tela
+    def compute_bbox(self):
         xs = []
         ys = []
         
@@ -56,15 +61,23 @@ class Janela_OpenGL(OpenGLFrame):
             return 0, 0
 
         minx, maxx, miny, maxy = self.bbox
-        # prevenir divisão por zero
-        ret_x = maxx - minx if maxx - minx != 0 else 1.0
-        ret_y = maxy - miny if maxy - miny != 0 else 1.0
-        
-        sx = (x - minx) / ret_x
-        sy = (y - miny) / ret_y
+
+        largura = maxx - minx
+        altura = maxy - miny
+
+        # evita divisão por zero
+        if largura == 0:  largura = 1e-9
+        if altura == 0: altura = 1e-9
+
+        escala = max(largura, altura)
+
+        sx = (x - minx) / escala
+        sy = (y - miny) / escala
+
         # manter aspecto
         sx = self.margin + sx * (1 - 2*self.margin)
         sy = self.margin + sy * (1 - 2*self.margin)
+
         screen_x = int(sx * (self.window_w - 1))
         screen_y = int(sy * (self.window_h - 1))
         return screen_x, screen_y
@@ -92,7 +105,7 @@ class Janela_OpenGL(OpenGLFrame):
         dir = -1 if dy < 0 else 1
         dy *= dir
 
-        glBegin(GL_LINES)
+        glBegin(GL_POINTS)
 
         if dx != 0:
             y = y1
@@ -118,7 +131,7 @@ class Janela_OpenGL(OpenGLFrame):
         dir = -1 if dx < 0 else 1
         dx *= dir
 
-        glBegin(GL_LINES)
+        glBegin(GL_POINTS)
 
         if dy != 0:
             x = x1
@@ -216,39 +229,164 @@ class Janela_OpenGL(OpenGLFrame):
                     )))
                     if key in drawn:
                         continue
-                    drawn.add(key)
                 else:
                     key = (idx_estrutura, he.start.id, he.end.id)
                     if key in drawn:
                         continue
-                    drawn.add(key)
+                
+                drawn.add(key)
 
                 x1w, y1w = he.start.getCoords()
                 x2w, y2w = he.end.getCoords()
 
-                x1, y1 = self.world_to_screen(x1w, y1w)
-                x2, y2 = self.world_to_screen(x2w, y2w)
+                if self.is_inside(x1w, y1w) and self.is_inside(x2w, y2w):
+                    x1, y1 = self.world_to_screen(x1w, y1w)
+                    x2, y2 = self.world_to_screen(x2w, y2w)
 
-                self.desenharSegmento(x1, y1, x2, y2)
+                    self.desenharSegmento(x1, y1, x2, y2)
+                else:
+                    intersecoes = self.ponto_intersecao((x1w, y1w), (x2w, y2w))
+                    pontos = []
+
+
+                    if self.is_inside(x1w, y1w):
+                        pontos.append((x1w, y1w))
+                    pontos.extend(intersecoes)
+                    if self.is_inside(x2w, y2w):
+                        pontos.append((x2w, y2w))
+
+                    if len(pontos) < 2:
+                        continue
+
+                    for i in range(len(pontos)-1):
+                        x1s, y1s = self.world_to_screen(pontos[i][0], pontos[i][1])
+                        x2s, y2s = self.world_to_screen(pontos[i+1][0], pontos[i+1][1])
+                        self.desenharSegmento(x1s, y1s, x2s, y2s)
+                    continue
 
     def redraw(self):
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         glLoadIdentity()
-        
+            
         if self.estruturas:
             self.window_w = self.width
             self.window_h = self.height
-            self.desenharEixos()
+            self.desenhar_viewport()
             self.desenhar_tudo()
-
+            self.desenharEixos()
 
         glFlush()
 
+        self.tkSwapBuffers()
+
+        if self.animate:
+            self.after(16, self.redraw)
+
     def desenharEixos(self):
+        _, y_center = self.world_to_screen(0, 0)
+        x_center, _ = self.world_to_screen(0, 0)
+
         glColor3f(1, 0, 0)
-        if self.bbox:
-            _, y_center = self.world_to_screen(0, 0)
-            self.desenharSegmento(0, y_center, self.window_w - 1, y_center)
-            
-            x_center, _ = self.world_to_screen(0, 0)
-            self.desenharSegmento(x_center, 0, x_center, self.window_h - 1)
+        glBegin(GL_LINE_LOOP)
+        
+        glVertex2f(x_center, 0)
+        glVertex2f(x_center, self.window_h - 1)
+        glEnd()
+        glBegin(GL_LINE_LOOP)
+        glVertex2f(0, y_center)
+        glVertex2f(self.window_w - 1, y_center)
+        glEnd()
+
+    def desenhar_viewport(self, scale=1.7):
+        if self.bbox is None:
+            return
+        
+        xmin, xmax, ymin, ymax = self.bbox
+
+        cx = (xmin + xmax) / 2
+        cy = (ymin + ymax) / 2
+
+        if(xmax - xmin) > (ymax - ymin):
+            tamanho = (xmax - xmin) * scale
+        else:
+            tamanho = (ymax - ymin) * scale
+
+        xmin_v = cx - tamanho / 2
+        xmax_v = cx + tamanho / 2
+        ymin_v = cy - tamanho / 2
+        ymax_v = cy + tamanho / 2
+
+        self.viewport = (xmin_v, xmax_v, ymin_v, ymax_v)
+
+        x1, y1 = self.world_to_screen(xmin_v, ymin_v)
+        x2, y2 = self.world_to_screen(xmax_v, ymin_v)
+        x3, y3 = self.world_to_screen(xmax_v, ymax_v)
+        x4, y4 = self.world_to_screen(xmin_v, ymax_v)
+
+        glColor3f(0, 1, 0)  # viewport em verde
+        
+        glBegin(GL_LINE_LOOP)
+        glVertex2f(x1, y1)
+        glVertex2f(x2, y2)
+        glVertex2f(x3, y3)
+        glVertex2f(x4, y4)
+        glEnd()
+
+
+    def is_inside(self, x, y):
+        if self.viewport is None:
+            return False
+        
+        xmin, xmax, ymin, ymax = self.viewport
+        return xmin <= x <= xmax and ymin <= y <= ymax
+    
+    def ponto_intersecao(self, p1, p2):
+        x1, y1 = p1
+        x2, y2 = p2
+
+        intersecoes = []
+
+        # Evita divisão por zero
+        dx = x2 - x1
+        dy = y2 - y1
+
+        # Borda esquerda: x = xmin
+        if dx != 0:
+            t = (self.viewport[0] - x1) / dx
+            if 0 <= t <= 1:
+                y = y1 + t * dy
+                if self.viewport[2] <= y <= self.viewport[3]:
+                    intersecoes.append((self.viewport[0], y))
+
+        # Borda direita: x = xmax
+        if dx != 0:
+            t = (self.viewport[1] - x1) / dx
+            if 0 <= t <= 1:
+                y = y1 + t * dy
+                if self.viewport[2] <= y <= self.viewport[3]:
+                    intersecoes.append((self.viewport[1], y))
+
+        # Borda inferior: y = ymin
+        if dy != 0:
+            t = (self.viewport[2] - y1) / dy
+            if 0 <= t <= 1:
+                x = x1 + t * dx
+                if self.viewport[0] <= x <= self.viewport[1]:
+                    intersecoes.append((x, self.viewport[2]))
+
+        # Borda superior: y = ymax
+        if dy != 0:
+            t = (self.viewport[3] - y1) / dy
+            if 0 <= t <= 1:
+                x = x1 + t * dx
+                if self.viewport[0] <= x <= self.viewport[1]:
+                    intersecoes.append((x, self.viewport[3]))
+
+        intersecoes.sort(key=lambda p: math.dist(p, p1))
+        
+        return intersecoes
+
+
+
+
+

@@ -1,7 +1,18 @@
 import os
+import sys
 from core import half_edge_funcoes
 
-caminho = os.path.join(os.path.dirname(__file__), '..', 'arquivos_objetos')
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
+pasta_objetos = 'arquivos_objetos'
+
+caminho = os.path.join(os.path.abspath("."), pasta_objetos)
 
 def obter_nomes_objetos():
     if not os.path.exists(caminho):
